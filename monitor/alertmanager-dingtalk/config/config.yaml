@@ -1,0 +1,39 @@
+server:
+  listen: 0.0.0.0
+  port: 8111
+  workers: 2
+  access_log: False
+
+media: 
+  dingtalk:
+    channels:
+      # 告警通道配置
+      webhook:
+        url: https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      webhook1:
+        url: https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        secret: SECxxxxxxxxxxxxxxxxxxxxxxxx
+      webhook2:
+        url: https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        secret: SECxxxxxxxxxxxxxxxxxxxxxxxx
+        at_mobiles: ["XXXXXXXXXXX","XXXXXXXXXXX"]
+      webhook3:
+        url: https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        secret: SECxxxxxxxxxxxxxxxxxxxxxxxx
+        is_at_all: True
+rules:
+  # 告警升级规则
+  escalation:
+    test:
+      step_1:
+        media: dingtalk
+        channel: webhook1
+        pending: 1h
+      step_2:
+        media: dingtalk
+        channel: webhook2
+        pending: 2h
+      step_3:
+        media: dingtalk
+        channel: webhook3
+        pending: 3h
