@@ -1,0 +1,95 @@
+# 示例模版
+# - job_name: 'middleware-node'
+#   scrape_interval: 15s
+#   scrape_timeout: 10s
+#   metrics_path: /metrics
+#   scheme: http
+#   static_configs:
+#   - targets:
+#     - 172.17.209.5:9100
+#     - 172.17.209.6:9100
+#     - 172.17.209.24:9100
+- job_name: 'web-monitor'
+  metrics_path: /probe
+  scrape_interval: 30s
+  scrape_timeout: 10s
+  params:
+    module: [http_2xx]
+  static_configs:
+    - targets:
+      - https://chat.tydiczt.com
+      - https://chatfiles.tydiczt.com
+      - http://172.17.209.24:9091/kb/monitor 
+      - http://172.17.209.24:9092/kb/monitor
+  relabel_configs:
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: blackbox-exporter.monitoring:19115
+#- job_name: nacos-monitor
+#  scrape_interval: 15s
+#  scrape_timeout: 10s
+#  metrics_path: '/nacos/actuator/prometheus'
+#  static_configs:
+#  - targets:
+#    - 172.17.209.5:8848
+- job_name: 'custom_exporter'
+  static_configs:
+    - targets:
+      - 172.17.209.5:9111
+- job_name: 'app-error-log-check'
+  scrape_interval: 10m
+  scrape_timeout: 20s
+  static_configs:
+  - targets:
+    - nbchat-admin
+    - nbchat-gateway
+    - nbchat-session
+    - nbchat-user
+    - nbchat-robot
+    - nbchat-web
+  metrics_path: /app-error-log-detail/metrics
+  relabel_configs:
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: 172.17.209.5:9111
+- job_name: 'redis_exporter_target'
+  static_configs:
+  - targets:
+    - redis://172.17.209.5:6379
+  metrics_path: /scrape
+  relabel_configs:
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: redis-exporter.monitoring:9121
+- job_name: 'redis_exporter'
+  static_configs:
+    - targets:
+      - redis-exporter.monitoring:9121
+- job_name: 'nbchat_video_generation_error_detail'
+  scrape_interval: 5m
+  scrape_timeout: 20s
+  metrics_path: /video-generation-error-detail/metrics
+  static_configs:
+  - targets:
+    - 172.17.209.5:9111
+- job_name: 'milvus-monitor'
+  metrics_path: /metrics
+  static_configs:
+    - targets:
+      - 172.17.209.6:9091
+- job_name: 'etcd-monitor'
+  scrape_interval: 10s
+  scrape_timeout: 10s
+  metrics_path: /metrics
+  static_configs:
+  - targets:
+    - 172.17.209.6:2379
