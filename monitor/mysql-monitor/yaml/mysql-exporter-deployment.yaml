@@ -19,14 +19,18 @@ spec:
     spec:
       containers:
       - name: mysqld-exporter
-        image: 192.168.10.212/middleware/mysqld-exporter:v0.13.0
+        image: 192.168.10.212/middleware/mysqld-exporter:v0.16.0
+        command:
+            - /bin/sh
+            - '-c'
+            - exec mysqld_exporter --mysqld.username=${USERNAME}  --mysqld.address=${URL}
         env:
         - name: USERNAME
           valueFrom:
             secretKeyRef:
               name: ${mysql-instance}-mysql-secret
               key: username
-        - name: PASSWORD
+        - name: MYSQLD_EXPORTER_PASSWORD
           valueFrom:
             secretKeyRef:
               name: ${mysql-instance}-mysql-secret
@@ -36,8 +40,6 @@ spec:
             secretKeyRef:
               name: ${mysql-instance}-mysql-secret
               key: url
-        - name: DATA_SOURCE_NAME
-          value: $(USERNAME):$(PASSWORD)@($(URL))/
         ports:
         - containerPort: 9104
         resources:
