@@ -1,0 +1,194 @@
+✅ 你已提供的信息
+API Server 地址：https://10.100.12.11:6443
+
+监控组件：
+
+kube-apiserver
+
+kube-controller-manager
+
+kube-scheduler
+
+etcd
+
+kubelet
+
+node-exporter
+
+kube-state-metrics
+
+cAdvisor
+
+Prometheus 运行环境：
+
+部署方式：Docker
+
+数据目录：/middleware/prometheus/data
+
+证书/token 目录：/middleware/prometheus/
+
+监控端点
+
+node-exporter 暴露地址为 http://10.100.12.11:9100
+
+kubelet 已启用 10250 端口
+
+❗你需要额外完成的准备工作
+为了 Prometheus 能成功认证并抓取集群内部的组件信息：
+
+1. 创建只读 ServiceAccount 并绑定权限
+你需要在集群内运行以下 YAML 来创建 prometheus 用户并赋予只读权限：
+
+yaml
+复制
+编辑
+# prometheus-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: kube-system
+应用后再执行：
+
+bash
+复制
+编辑
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep prometheus | awk '{print $1}')
+
+
+serviceaccount/prometheus unchanged
+clusterrolebinding.rbac.authorization.k8s.io/prometheus unchanged
+secret/prometheus-token created
+root@vm-10-100-12-11:/middleware# kubectl -n kube-system get secret prometheus-token -o jsonpath='{.data.token}' | base64 -d
+eyJhbGciOiJSUzI1NiIsImtpZCI6Il9JeVc0Vm5BbkFDb0x0by0teWVlUmxQSkpkYi1mU3lacUFob0hHQndFbVUifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJwcm9tZXRoZXVzLXRva2VuIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InByb21ldGhldXMiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI4ZGRlOWVkZC03OGM4LTRhNTctOGZkNS0yOGEzMTQyYjAwYTEiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06cHJvbWV0aGV1cyJ9.MrnmbAiWIj58FcO138tP0K7J_Kn11NrDdG2UNXPPQgYtyFk3pxW7cSjHpzutZQIqVirMhoUfYGh9jk3OZULuwjSLuyd9UiqXccDdWO4G5sAoqgKopcFAah1BEUqwbeiV9xyko0_jxUHSU0QjfV6wdUkAT6pL5FYGPDo4dOqSJlQJ_mwHfDi2oPb25XWd6lGh94XWXYet9rG-Zig4afYEkQ_yrjw7iLNGRsDSOIktivwfcQrR_fCsHmtLjpLFvEqPOnmd1HpfQ1RfDj9ZH0MEh54q7lFA5BkGPTbh0ioTVL6zqmz779Ekvmo9B_RujNKDAkJVof8Qe43rsas0vBobqw
+
+
+ca.crt
+
+token
+
+将提取出的 token 和 ca.crt 保存到宿主机：
+
+bash
+复制
+编辑
+/middleware/prometheus/token
+/middleware/prometheus/ca.crt
+✅ 我现在可以为你生成以下配置：
+完整的 prometheus.yml
+
+Docker 运行命令
+
+请确认：
+
+你已经准备好上述 token 和 ca.crt 文件
+
+node-exporter、kube-state-metrics、cadvisor 等服务是否都暴露了集群外部访问的 HTTP 地址？如果是，请提供这些地址。
+
+例如：
+
+text
+复制
+编辑
+node-exporter: http://10.100.12.11:9100
+kube-state-metrics: http://10.100.12.11:8080
+cAdvisor: http://10.100.12.11:4194
+...
+提供后我将立即生成配置文件。
+
+
+
+
+
+
+
+要确认 Kubernetes 中的组件是否暴露到集群外部可访问，可以从以下几个层面排查：
+
+✅ 一、确认组件是否部署
+以 kube-state-metrics 为例：
+
+bash
+复制
+编辑
+kubectl get pods -A | grep kube-state-metrics
+如果组件未部署，需先部署。
+
+✅ 二、确认组件是否暴露了端口（Service / HostPort / NodePort / Ingress）
+以 node-exporter 为例：
+
+bash
+复制
+编辑
+kubectl get svc -A | grep node-exporter
+你可能看到如下输出：
+
+text
+复制
+编辑
+monitoring   node-exporter   ClusterIP   10.96.0.10   <none>   9100/TCP
+表示未暴露到集群外部。
+
+✅ 三、如何暴露组件到集群外部
+方案 1：使用 NodePort 暴露（推荐用于测试环境）
+以 kube-state-metrics 为例：
+
+bash
+复制
+编辑
+kubectl -n kube-system expose deployment kube-state-metrics --type=NodePort --port=8080 --name=kube-state-metrics-np
+然后查看暴露端口：
+
+bash
+复制
+编辑
+kubectl -n kube-system get svc kube-state-metrics-np
+假设输出：
+
+text
+复制
+编辑
+kube-state-metrics-np   NodePort   10.96.0.12   <none>   8080:32080/TCP
+则你可从任意 Node 节点（例如 10.100.12.11）访问：
+
+cpp
+复制
+编辑
+http://10.100.12.11:32080
+方案 2：使用 HostPort 绑定宿主机端口（对 kubelet/cAdvisor 常见）
+确认 Pod 的 yaml 中是否设置了 HostPort：
+
+yaml
+复制
+编辑
+ports:
+  - containerPort: 4194
+    hostPort: 4194
+    protocol: TCP
+如果未设置，可修改 Deployment 或 DaemonSet 资源增加 hostPort 字段。
+
+方案 3：使用 Ingress 暴露 HTTP 接口
+（一般用于有 ingress-nginx 控制器的情况，不推荐专为 Prometheus 裸暴露 HTTP 时使用）
+
+✅ 建议你逐一排查以下组件：
+组件	默认端口	检查命令	若未暴露建议
+kube-apiserver	6443	已知地址	无需变更
+kubelet	10250	curl -k https://<node>:10250/metrics	已启用即可
+kube-controller-manager	10257		已经配置静态目标
+kube-scheduler	10259		已配置静态目标
+etcd	2379	已配置静态目标
+node-exporter	9100	已配置静态目标
+kube-state-metrics	8080	已配置静态目标
+cAdvisor		已通过system管理，暴露28848端口
