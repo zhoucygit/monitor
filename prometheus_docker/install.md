@@ -1,4 +1,75 @@
+[toc]
+# 修改k8s监听地址
+
+将以下两个文件中监听端口由127.0.0.1 修改为0.0.0.0
+改完后它会自动删除controller 和 scheduler pod 重新生成
+/etc/kubernetes/manifests/kube-controller-manager.yaml
+/etc/kubernetes/manifests/kube-scheduler.yaml
+
+# 准备证书及token
+## 创建并获取k8s集群token
+
+创建账户并赋予角色
+```
+kubectl apply -f kubesa.yml
+kubectl -n monitoring get secrets 
+```
+将token复制出来另存为文件k8s.token
+
+## 拷贝etcd证书
+将集群中etcd证书文件夹拷贝出来 
+```
+/etc/kubernetes/pki/etcd/
+```
+
+
+
+# 为每个节点部署独立的 cAdvisor服务
+## 准备资源
+去git上下载相应的包，放置到/middleware 路径，更改cadvisor-v0.52.1-linux-arm64文件权限为755 
+目录结构如下
+
+``` 
+cadvisor/
+├── bin
+│   └── cadvisor-v0.52.1-linux-arm64
+└── logs
+
+
+
+cat /etc/systemd/system/cadvisor.service 
+[Unit]
+Description=cAdvisor Service
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=/middleware/cadvisor/bin/cadvisor-v0.52.1-linux-arm64 \
+  --port=28848 \
+  --log_dir=/middleware/cadvisor/logs/ \
+  --docker_only=false \
+  --docker=unix:///var/run/docker.sock \
+  --housekeeping_interval=30s
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+
+
+## 启动cadvisor
+
+```
+
+systemctl daemon-reload &&  systemctl enable cadvisor && systemctl start cadvisor
+
+```
+
+
+
 # k8s指标采集
+## 安装kube-state-metrics
 kube-state-metrics 是一个用于从 Kubernetes 集群中生成各种资源对象状态指标的工具。
 
 通过Deployment等配置完成安装
@@ -14,7 +85,10 @@ service/kube-state-metrics created
 deployment.apps/kube-state-metrics created
 ```
 
-常见指标
+kube-state-metrics  默认是headless ，删除clusterip： none的相关行再部署，部署完后改成nodeport
+
+
+## 常见指标
 ```
 kube_pod_info # 有关pod的信息。
 kube_pod_start_time # pod的unix时间戳记中的开始时间。
@@ -55,6 +129,44 @@ kube_pod_status_scheduled_time # Pod移至计划状态时的Unix时间戳
 kube_pod_status_unschedulable # 描述pod的unschedulable状态。
 
 ```
+
+
+# 启动prometheus
+
+## 启动
+``` 
+prometheus/
+├── certs
+│   ├── 10.100.12.11
+│   │   ├── etcd
+│   │   └── k8s.token
+│   └── 192.168.10.231
+│       ├── etcd
+│       └── k8s.token
+├── conf
+│   └── prometheus.yml
+├── data
+└── docker-compose.yml
+
+
+docker compose up -d
+```
+
+
+## 修改数据路径所有者
+```
+chown -R 65534:65534 promethus_data
+chown -R 65534:65534 alertmanager_data/
+chown -R 472:472  grafana_data
+```
+
+
+
+
+
+
+
+
 # 常用告警规则
 ```
   - alert: KubernetesOutOfCapacity

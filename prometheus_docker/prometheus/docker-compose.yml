@@ -1,0 +1,81 @@
+services:
+  prometheus:
+    image: 192.168.10.212/middleware/prometheus_arm64:v3.4.0
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "300m"  # 单个日志文件的最大大小
+        max-file: "1"    # 保留的最大日志文件数
+    shm_size: '1gb'
+    restart: always
+    hostname: prometheus
+    ports:
+      - 9090:9090
+    environment:
+      - "TZ=Asia/Shanghai"
+    volumes:
+      - ./conf/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus_data:/prometheus
+      - ./certs:/etc/prometheus/certs
+    networks:
+      - custom-network
+
+
+
+  alertmanager:
+    image: 192.168.10.212/middleware/alertmanager_arm64:v0.28.1
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "300m"  # 单个日志文件的最大大小
+        max-file: "1"    # 保留的最大日志文件数
+    shm_size: '1gb'
+    hostname: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./conf/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./alertmanager-data:/data
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/data'
+    restart: always
+    depends_on:
+      - alertmanager
+    networks:
+      - custom-network
+
+      
+
+
+  grafana:
+    image: 192.168.10.212/middleware/grafana_arm64:12.0.1-ubuntu
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "300m"  # 单个日志文件的最大大小
+        max-file: "1"    # 保留的最大日志文件数
+    shm_size: '1gb'
+    hostname: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    restart: always
+    depends_on:
+      - alertmanager
+    networks:
+      - custom-network
+
+
+
+# 创建网络
+networks:
+  custom-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.25.2.0/24

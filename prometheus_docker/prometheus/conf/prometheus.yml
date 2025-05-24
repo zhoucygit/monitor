@@ -1,0 +1,202 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'kube-apiserver-12.11'
+    scheme: https
+    static_configs:
+      - targets:
+        - '10.100.12.11:6443'
+        - '10.100.12.12:6443'
+        - '10.100.12.13:6443'
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/certs/10.100.12.11/k8s.token
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+
+  - job_name: 'kube-apiserver-10.231'
+    scheme: https
+    static_configs:
+      - targets:
+        - '192.168.10.231:6443'
+        - '192.168.10.211:6443'
+        - '192.168.10.251:6443'
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/certs/192.168.10.231/k8s.token
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+
+  - job_name: 'kubelet-12.11'
+    scheme: https
+    static_configs:
+      - targets:
+        - 10.100.12.11:10250
+        - 10.100.12.12:10250
+        - 10.100.12.13:10250
+        - 10.100.12.1:10250
+        - 10.100.12.2:10250
+        - 10.100.12.3:10250
+        - 10.100.12.4:10250
+        - 10.100.12.5:10250
+        - 10.100.12.6:10250
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/certs/10.100.12.11/k8s.token
+    metrics_path: /metrics
+
+  - job_name: 'kubelet-10.231'
+    scheme: https
+    static_configs:
+      - targets:
+        - 192.168.10.231:10250
+        - 192.168.10.211:10250
+        - 192.168.10.251:10250
+        - 192.168.10.232:10250
+        - 192.168.10.234:10250
+        - 192.168.10.235:10250
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/certs/192.168.10.231/k8s.token
+    metrics_path: /metrics
+
+  - job_name: 'kube-controller-manager-12.11'
+    scheme: https
+    static_configs:
+      - targets:
+        - 10.100.12.11:10257
+        - 10.100.12.12:10257
+        - 10.100.12.13:10257
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/certs/10.100.12.11/k8s.token
+    metrics_path: /metrics
+
+  - job_name: 'kube-controller-manager-10.231'
+    scheme: https
+    static_configs:
+      - targets:
+        - 192.168.10.231:10257
+        - 192.168.10.211:10257
+        - 192.168.10.251:10257
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/certs/192.168.10.231/k8s.token
+    metrics_path: /metrics
+
+  - job_name: 'kube-scheduler-12.11'
+    scheme: https
+    static_configs:
+      - targets:
+        - 10.100.12.11:10259
+        - 10.100.12.12:10259
+        - 10.100.12.13:10259
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/certs/10.100.12.11/k8s.token
+    metrics_path: /metrics
+
+
+  - job_name: 'kube-scheduler-10.231'
+    scheme: https
+    static_configs:
+      - targets:
+        - 192.168.10.231:10259
+        - 192.168.10.211:10259
+        - 192.168.10.251:10259
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/certs/192.168.10.231/k8s.token
+    metrics_path: /metrics
+
+  - job_name: 'etcd-12.11'
+    scheme: https
+    static_configs:
+      - targets:
+        - 10.100.12.11:2379
+        - 10.100.12.12:2379
+        - 10.100.12.13:2379
+    tls_config:
+      insecure_skip_verify: true
+      ca_file: /etc/prometheus/certs/10.100.12.11/etcd/ca.crt
+      cert_file: /etc/prometheus/certs/10.100.12.11/etcd/healthcheck-client.crt
+      key_file: /etc/prometheus/certs/10.100.12.11/etcd/healthcheck-client.key        
+    metrics_path: /metrics
+  - job_name: 'etcd-10.231'
+    scheme: https
+    static_configs:
+      - targets:
+        - 192.168.10.211:2379
+        - 192.168.10.231:2379
+        - 192.168.10.251:2379
+    tls_config:
+      insecure_skip_verify: true
+      ca_file: /etc/prometheus/certs/192.168.10.231/etcd/ca.crt
+      cert_file: /etc/prometheus/certs/192.168.10.231/etcd/healthcheck-client.crt
+      key_file: /etc/prometheus/certs/192.168.10.231/etcd/healthcheck-client.key
+    metrics_path: /metrics
+
+
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets:
+        - 10.100.1.5:9100
+        - 10.100.1.6:9100
+        - 10.100.1.7:9100
+        - 10.100.12.11:9100
+        - 10.100.12.12:9100
+        - 10.100.12.13:9100
+        - 10.100.12.1:9100
+        - 10.100.12.2:9100
+        - 10.100.12.3:9100
+        - 10.100.12.4:9100
+        - 10.100.12.5:9100
+        - 10.100.12.6:9100
+        - 192.168.10.231:39100
+        - 172.168.1.245:39100
+        - 172.168.1.246:39100
+        - 192.168.10.210:39100
+        - 192.168.10.212:39100
+        - 192.168.10.213:39100
+        - 192.168.10.230:39100
+        - 192.168.10.239:39100
+
+  - job_name: 'kube-state-metrics-12.11'
+    static_configs:
+      - targets: ['10.100.12.250:18080']
+
+  - job_name: 'kube-state-metrics-10.231'
+    static_configs:
+      - targets: ['10.100.12.250:18081']
+
+  - job_name: 'metrics-server'
+    scheme: https
+    static_configs:
+      - targets:
+        - 10.100.12.250:4433
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/certs/10.100.12.11/k8s.token
+    metrics_path: /metrics
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets:
+        - 10.100.12.11:28848
+        - 10.100.12.12:28848
+        - 10.100.12.13:28848
+        - 10.100.12.1:28848
+        - 10.100.12.2:28848
+        - 10.100.12.3:28848
+        - 10.100.12.4:28848
+        - 10.100.12.5:28848
+        - 10.100.12.6:28848
