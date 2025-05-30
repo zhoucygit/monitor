@@ -164,29 +164,3 @@ chown -R 472:472  grafana_data
 
 
 
-
-
-
-# 常用告警规则
-```
-  - alert: KubernetesOutOfCapacity
-    expr: sum by (node) ((kube_pod_status_phase{phase="Running"} == 1) + on(uid) group_left(node) (0 * kube_pod_info{pod_template_hash=""})) / sum by (node) (kube_node_status_allocatable{resource="pods"}) * 100 > 90
-    for: 2m
-    labels:
-      severity: warning
-      team: application
-    annotations:
-      summary: Kubernetes out of capacity
-      description: "{{ $labels.node }} 容量不足\n  VALUE = {{ $value }}\n"
-
-  - alert: KubernetesContainerOomKiller
-    expr: (kube_pod_container_status_restarts_total - kube_pod_container_status_restarts_total offset 10m >= 1) and ignoring (reason) min_over_time(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[10m]) == 1
-    for: 0m
-    labels:
-      severity: warning
-      team: application
-    annotations:
-      summary: Kubernetes container oom killer
-      description: "Container {{ $labels.container }} in pod {{ $labels.namespace }}/{{ $labels.pod }} has been OOMKilled {{ $value }} times in the last 10 minutes.\n  VALUE = {{ $value }}\n"
-
-```
