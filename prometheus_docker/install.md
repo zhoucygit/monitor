@@ -22,52 +22,6 @@ kubectl -n monitoring get secrets
 /etc/kubernetes/pki/etcd/
 ```
 
-
-
-# 为每个节点部署独立的 cAdvisor服务
-## 准备资源
-去git上下载相应的包，放置到/middleware 路径，更改cadvisor-v0.52.1-linux-arm64文件权限为755 
-目录结构如下
-
-``` 
-cadvisor/
-├── bin
-│   └── cadvisor-v0.52.1-linux-arm64
-└── logs
-
-
-
-cat /etc/systemd/system/cadvisor.service 
-[Unit]
-Description=cAdvisor Service
-After=network.target docker.service
-Requires=docker.service
-
-[Service]
-ExecStart=/middleware/cadvisor/bin/cadvisor-v0.52.1-linux-arm64 \
-  --port=28848 \
-  --log_dir=/middleware/cadvisor/logs/ \
-  --docker_only=false \
-  --docker=unix:///var/run/docker.sock \
-  --housekeeping_interval=30s
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-
-
-## 启动cadvisor
-
-```
-
-systemctl daemon-reload &&  systemctl enable cadvisor && systemctl start cadvisor
-
-```
-
-
-
 # k8s指标采集
 ## 安装kube-state-metrics
 kube-state-metrics 是一个用于从 Kubernetes 集群中生成各种资源对象状态指标的工具。
