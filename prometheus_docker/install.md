@@ -12,7 +12,7 @@
 创建账户并赋予角色
 ```
 kubectl apply -f kubesa.yml
-kubectl -n monitoring get secrets 
+kubectl -n kube-system get secrets 
 ```
 将token复制出来另存为文件k8s.token
 
