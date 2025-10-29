@@ -1,7 +1,7 @@
 {
     "__inputs": [
     {
-      "name": "datasource",
+      "name": "DS_PROMETHEUS",
       "label": "Prometheus",
       "description": "",
       "type": "datasource",
@@ -226,10 +226,10 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "cluster-aliyun-spider",
-          "value": "cluster-aliyun-spider"
-        },
+      "current": {
+        "text": "",
+        "value": ""
+      },
         "definition": "label_values(up{job=\"kube-state-metrics\"},cluster)",
         "label": "cluster",
         "name": "cluster",
@@ -244,10 +244,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "standard-prod",
-          "value": "standard-prod"
-        },
+      "current": {
+        "text": "",
+        "value": ""
+      },
         "definition": "label_values(kube_deployment_status_replicas{job=\"kube-state-metrics\", cluster=\"$cluster\"},namespace)",
         "includeAll": false,
         "label": "namespace",
@@ -263,10 +263,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
+      "current": {
+        "text": "",
+        "value": ""
+      },
         "definition": "label_values(kube_deployment_status_replicas{job=\"kube-state-metrics\", cluster=\"$cluster\", namespace=\"$namespace\"},deployment)",
         "includeAll": true,
         "label": "deployment",
@@ -282,10 +282,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
+      "current": {
+        "text": "",
+        "value": ""
+      },
         "definition": "label_values(kube_pod_info{cluster=\"$cluster\", namespace=\"$namespace\", pod=~\"$deployment.*\"},pod)",
         "includeAll": true,
         "label": "pod",
