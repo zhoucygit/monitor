@@ -1,4 +1,14 @@
 {
+    "__inputs": [
+    {
+      "name": "datasource",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -23,7 +33,7 @@
   "liveNow": true,
   "panels": [
     {
-      "datasource": "prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -105,7 +115,7 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "datasource": "prometheus",
+          "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum by(cluster, namespace, pod) (\n  rate(container_cpu_usage_seconds_total{\n    cluster=\"$cluster\",\n    namespace=\"$namespace\",\n    pod=~\"$pod.*\"\n  }[5m])\n)\n/\nsum by(cluster, namespace, pod) (\n  kube_pod_container_resource_limits{\n    cluster=\"$cluster\",\n    namespace=\"$namespace\",\n    pod=~\"$pod.*\",\n    resource=\"cpu\"\n  }\n)",
@@ -120,7 +130,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "prometheus",
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "color": {

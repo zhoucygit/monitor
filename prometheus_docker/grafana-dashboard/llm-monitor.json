@@ -1,4 +1,13 @@
-{
+{  "__inputs": [
+    {
+      "name": "datasource",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -22,10 +31,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "demyt4recu03kb"
-      },
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -131,10 +137,7 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "demyt4recu03kb"
-          },
+          "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
           "expr": "rate(nginx_vts_upstream_requests_total{job=\"NGINX_VTS_EXPORTER\",upstream=~\"tianshu.*|Qwen.*|ocr.*\",code=\"2xx\"}[1m]) * 60",
           "instant": false,
@@ -147,10 +150,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "demyt4recu03kb"
-      },
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -257,10 +257,7 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P1809F7CD0C75ACF3"
-          },
+          "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
           "expr": "nginx_vts_upstream_request_seconds{job=\"NGINX_VTS_EXPORTER\",upstream=~\"tianshu.*|Qwen.*|ocr.*\"}*1000",
           "instant": false,
@@ -273,10 +270,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "demyt4recu03kb"
-      },
+      "datasource": "${DS_PROMETHEUS}",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -383,10 +377,7 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P1809F7CD0C75ACF3"
-          },
+          "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
           "expr": "nginx_vts_upstream_request_seconds{job=\"NGINX_VTS_EXPORTER\",upstream=~\"iio-proxy.*\"}*1000",
           "instant": false,
