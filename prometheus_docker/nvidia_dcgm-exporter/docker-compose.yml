@@ -1,0 +1,27 @@
+services:
+  nvidia_dcgm-exporter:
+    container_name: nvidia_dcgm-exporter
+    #image: nvidia/dcgm-exporter:4.5.2-4.8.1-ubuntu22.04
+    image: 192.168.10.212/middleware/nvidia_dcgm-exporter:4.5.2-4.8.1-ubuntu22.04
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"  # 单个日志文件的最大大小
+        max-file: "3"    # 保留的最大日志文件数
+
+    privileged: true
+
+    restart: always
+    runtime: nvidia
+
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    ports:
+      - "9400:9400"

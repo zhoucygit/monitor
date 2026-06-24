@@ -11,3 +11,7 @@
 |node-exporter | http://:19100/metrics | k8s集群外单独安装，建议修改默认监听端口9100，防止冲突|
 |kube-state-metrics | http://:8080/metrics | k8s集群内部署安装|
 |cAdvisor | http://:28848/metrics  | k8s集群外单独安装|
+
+# 查找 grafana 展示列表
+
+https://grafana.com/grafana/dashboards/
